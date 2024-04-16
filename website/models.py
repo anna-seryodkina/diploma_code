@@ -11,9 +11,12 @@ class RecyclingPoint(db.Model):
     works_from = db.Column(db.TIME())
     works_to = db.Column(db.TIME())
     additional_info = db.Column(db.String(3000)) # ??
+    # total_score ??
+    rewards = db.relationship('ScoreTable')
 
 
 class ScoreTable(db.Model):
+    id = db.Column(db.Integer, primary_key = True)
     material_id = (db.Integer, db.ForeignKey('material.id')) # primary key ?
     user_id = (db.Integer, db.ForeignKey('user.id')) # primary key ?
     score = db.Column(db.Integer)
@@ -24,6 +27,7 @@ class Material(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String(150))
     sorting_info = db.Column(db.String(3000)) # ??
+    recycling_points = db.relationship('RecyclingPoint')
 
 
 class User(db.Model, UserMixin):
