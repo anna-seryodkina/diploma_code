@@ -29,9 +29,10 @@ class User(db.Model, UserMixin):
     rewards = db.relationship('ScoreTable')
 
 
-class ScoreTable(db.Model):
+class Entry (db.Model):
     id = db.Column(db.Integer, primary_key = True)
-    material_id = db.Column(db.Integer, db.ForeignKey('material.id')) # primary key ?
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id')) # primary key ?
-    score = db.Column(db.Integer)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id')) # хто здав
+    material_id = db.Column(db.Integer, db.ForeignKey('material.id')) # що здав
+    recycling_point_id = db.Column(db.Integer, db.ForeignKey('recycling_point.id')) # де здав
+    points_earned = db.Column(db.Integer)
     reward = db.Column(db.String(250))
