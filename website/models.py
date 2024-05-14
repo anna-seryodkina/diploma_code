@@ -26,6 +26,7 @@ class User(db.Model, UserMixin):
     password = db.Column(db.String(150))
     first_name =  db.Column(db.String(150))
     entries = db.relationship('Entry')
+    isAdmin = db.Column(db.Boolean)
 
 
 class Entry (db.Model):
