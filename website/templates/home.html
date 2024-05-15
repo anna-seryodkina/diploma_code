@@ -2,5 +2,56 @@
 {% block title %}Home{% endblock %}
 
 {% block content %}
-<h1>home page content</h1>
+
+<br />
+
+<form method = "GET">
+<div class="input-group">
+    <select class="custom-select" id="inputGroupSelect">
+        <option selected>City</option>
+        <option value="1">One</option>
+        <option value="2">Two</option>
+        <option value="3">Three</option>
+    </select>
+    <div class="input-group-append">
+        <button class="btn btn-outline-secondary" type="submit">Search</button>
+    </div>
+</div>
+</form>
+<br />
+
+
+
+<form method = "GET">
+    <div class="input-group mb-3">
+        <input type="text" class="form-control" id = "mylocation" name = "mylocation" placeholder="Address" aria-label="Address" aria-describedby="basic-addon2">
+        <div class="input-group-append">
+            <button class="btn btn-outline-secondary" type="submit">Search</button>
+        </div>
+    </div>
+</form>
+
+<!-- FILTER THING HERE -->
+
+
+<div id="map" style="height:500px;"></div>
+
+
+
+
+<script>
+    var map = L.map('map').setView([49.3794, 31.1656], 6);
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(map);
+
+    // adding markers
+    {% for location in locations %}
+        L.marker({{location}}).addTo(map);
+    {% endfor %}
+</script>
+
+
+
 {% endblock  %}

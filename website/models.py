@@ -12,7 +12,7 @@ class Material(db.Model):
 
 class RecyclingPoint(db.Model):
     id = db.Column(db.Integer, primary_key = True)
-    location = db.Column(db.String(500))
+    location = db.Column(db.String(500)) # coordinates
     city = db.Column(db.String(150))
     materials = db.relationship('Material')
     works_from = db.Column(db.TIME())
