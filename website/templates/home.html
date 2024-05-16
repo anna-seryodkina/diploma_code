@@ -5,37 +5,82 @@
 
 <br />
 
-<form method = "GET">
-<div class="input-group">
-    <select class="custom-select" id="inputGroupSelect">
-        <option selected>City</option>
-        <option value="1">One</option>
-        <option value="2">Two</option>
-        <option value="3">Three</option>
-    </select>
-    <div class="input-group-append">
-        <button class="btn btn-outline-secondary" type="submit">Search</button>
-    </div>
-</div>
-</form>
-<br />
-
-
-
-<form method = "GET">
-    <div class="input-group mb-3">
-        <input type="text" class="form-control" id = "mylocation" name = "mylocation" placeholder="Address" aria-label="Address" aria-describedby="basic-addon2">
-        <div class="input-group-append">
-            <button class="btn btn-outline-secondary" type="submit">Search</button>
-        </div>
-    </div>
-</form>
 
 <!-- FILTER THING HERE -->
 
 
-<div id="map" style="height:500px;"></div>
+<div class="container">
+    <div class="row">
+        <div class="col-8">
+            <form method = "POST">
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" id = "mylocation" name = "mylocation" placeholder="Адреса" aria-label="Address" aria-describedby="basic-addon2">
+                    <select class="custom-select" id="city" name = "city">
+                        <option selected>Усі міста</option>
+                        <option value="Київ">Київ</option>
+                        <option value="Львів">Львів</option>
+                        <option value="Дніпро">Дніпро</option>
+                    </select>
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary" type="submit">Пошук</button>
+                    </div>
+                </div>
+            </form>
+            <div id="map" style="height:500px;"></div>
+        </div>
 
+        <div class="col-4">
+            <br />
+            <br />
+            <ul class="list-group list-group-flush" id="recycling_points">
+            {% for point in recycling_points %}
+                <li class="list-group-item d-flex justify-content-between align-items-start">
+                    {{point.id}}
+                    {{point.location}}
+                    <span class="badge badge-info">14 km</span> <!-- ADD DISTANCE HERE -->
+                </li>
+            {% endfor %}
+            </ul>
+            
+
+            <br /><br /><br /><br /> <!--CHANGE THAT-->
+            {% if user.is_admin %}
+            <button class="btn btn-primary" type="button">Додати пункт</button>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="MyModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLongTitle">Modal title</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            ...
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            {% if user.is_admin %}
+                <button class="btn btn-primary" type="button">Видалити</button>
+                <button class="btn btn-primary" type="button">Редагувати</button>
+            {% endif %}
+        </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div id = "info">
+    <h1>Корисна інформація</h1>
+</div>
 
 
 
@@ -46,9 +91,12 @@
         attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(map);
 
-    // adding markers
+    // markers
     {% for location in locations %}
-        L.marker({{location}}).addTo(map);
+        var marker = L.marker({{location}}).on('click', function(event){
+            $('#MyModal').modal('show');
+        });
+        marker.addTo(map);
     {% endfor %}
 </script>
 
