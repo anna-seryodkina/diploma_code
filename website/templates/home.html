@@ -20,18 +20,24 @@
                         <option value="Київ">Київ</option>
                         <option value="Львів">Львів</option>
                         <option value="Дніпро">Дніпро</option>
+                        <!-- add more options -->
+                    </select>
+                    <select class="custom-select" id="material" name = "material">
+                        <option selected>Все</option>
+                        <option value="Київ">Пластик</option>
+                        <option value="Львів">Папір</option>
+                        <option value="Дніпро">Скло</option>
+                        <!-- add more options -->
                     </select>
                     <div class="input-group-append">
-                        <button class="btn btn-outline-secondary" type="submit">Пошук</button>
+                        <button class="btn btn-secondary" type="submit">Пошук</button>
                     </div>
                 </div>
             </form>
             <div id="map" style="height:500px;"></div>
         </div>
 
-        <div class="col-4">
-            <br />
-            <br />
+        <div class="col-4" style = "padding-top: 50px;">
             <ul class="list-group list-group-flush" id="recycling_points">
             {% for point in recycling_points %}
                 <li class="list-group-item d-flex justify-content-between align-items-start">
@@ -45,15 +51,59 @@
 
             <br /><br /><br /><br /> <!--CHANGE THAT-->
             {% if user.is_admin %}
-            <button class="btn btn-primary" type="button">Додати пункт</button>
+            <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#AddPointModal">Додати пункт</button>
             {% endif %}
         </div>
     </div>
 </div>
 
 
-<!-- Modal -->
-<div class="modal fade" id="MyModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+<!-- Modal (add new recycling point)-->
+<div class="modal fade" id="AddPointModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLongTitle">Додати новий пункт прийому вторсировини</h5> <!--Change title-->
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"> 
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form method = "POST">
+                <!-- Форма щоб додати пункт -->
+                <div class="form-group">
+                    <label for="address">Адреса</label>
+                    <input type="text" class="form-control" id="address" placeholder="">
+                </div>
+                <div class="form-group">
+                    <label for="city">Місто</label>
+                    <input type="text" class="form-control" id="city" placeholder="">
+                </div>
+                <div class="form-group">
+                    <label for="works_from">Години роботи (початок)</label>
+                    <input type="text" class="form-control" id="works_from" placeholder="10:00">
+                </div>
+                <div class="form-group">
+                    <label for="works_to">Години роботи (кінець)</label>
+                    <input type="text" class="form-control" id="works_to" placeholder="19:00">
+                </div>
+                <div class="form-group">
+                    <label for="info">Додаткова інформація</label>
+                    <textarea class="form-control" id="info" rows="3"></textarea>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрити</button>
+            <button class="btn btn-primary" type="button" id = "addPointButton">Додати</button>
+        </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal (marker on click)-->
+<div class="modal fade" id="MarkerModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
         <div class="modal-header">
@@ -66,7 +116,7 @@
             ...
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрити</button>
             {% if user.is_admin %}
                 <button class="btn btn-primary" type="button">Видалити</button>
                 <button class="btn btn-primary" type="button">Редагувати</button>
@@ -78,8 +128,8 @@
 
 
 
-<div id = "info">
-    <h1>Корисна інформація</h1>
+<div id = "info" style = "padding-top: 50px;">
+    <h3>Корисна інформація</h3>
 </div>
 
 
@@ -94,7 +144,7 @@
     // markers
     {% for location in locations %}
         var marker = L.marker({{location}}).on('click', function(event){
-            $('#MyModal').modal('show');
+            $('#MarkerModal').modal('show');
         });
         marker.addTo(map);
     {% endfor %}

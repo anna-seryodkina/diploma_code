@@ -9,7 +9,7 @@ from geopy.distance import geodesic
 
 views = Blueprint('views', __name__)
 
-@views.route('/',  methods = ['GET', 'POST'])
+@views.route('/',  methods = ['GET', 'POST', 'PUT'])
 @login_required
 def home():
     locations_to_show = []
@@ -24,9 +24,13 @@ def home():
     mydistances = {}
     mydistances[recycling_points[0]] = 42
     
+    if request.method == 'PUT':
+        pass
+    
     if request.method == 'POST':
         city = request.form.get("city")
         mylocation_input = request.form.get("mylocation")
+        material = request.form.get("material")
         
         if city == 'Усі міста':
             locations_to_show = locations
@@ -46,6 +50,11 @@ def home():
             mydistances = {}
             for point in recycling_points:
                 mydistances[point] = geodesic(mylocation, point.location).km
+
+        if material != '':
+            # TO DO
+            pass
+
 
     return render_template("home.html", user = current_user, recycling_points=recycling_points, locations=locations_to_show, distances = mydistances)
 
