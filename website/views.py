@@ -12,11 +12,14 @@ views = Blueprint('views', __name__)
 @views.route('/',  methods = ['GET', 'POST', 'PUT'])
 @login_required
 def home():
+    loc = Nominatim(user_agent="website")
     locations_to_show = []
     recycling_points = RecyclingPoint.query.all()
     locations = []
     for point in recycling_points:
-        locations.append([eval(i) for i in point.location.split(',')])
+        getLoc = loc.geocode(point.location)
+        mylocation = [getLoc.latitude, getLoc.longitude]
+        locations.append(mylocation)
     
     locations_to_show = locations
     
@@ -38,12 +41,13 @@ def home():
             locs = []
             for point in recycling_points:
                 if point.city == city:
-                    locs.append([eval(i) for i in point.location.split(',')])
+                    getLoc = loc.geocode(point.location)
+                    mylocation = [getLoc.latitude, getLoc.longitude]
+                    locs.append(mylocation)
             locations_to_show = locs
 
 
         if mylocation_input != '':
-            loc = Nominatim(user_agent="website")
             getLoc = loc.geocode(mylocation_input)
             mylocation = [getLoc.latitude, getLoc.longitude]
             # find nearest
