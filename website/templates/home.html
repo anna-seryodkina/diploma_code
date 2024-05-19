@@ -39,12 +39,16 @@
 
         <div class="col-4" style = "padding-top: 50px;">
             <ul class="list-group list-group-flush" id="recycling_points">
-            {% for point in recycling_points %}
-                <li class="list-group-item d-flex justify-content-between align-items-start">
-                    {{point.id}}
-                    {{point.location}}
-                    <span class="badge badge-info">14 km</span> <!-- ADD DISTANCE HERE -->
-                </li>
+            {% for location in locations %}
+                {% for point in recycling_points %}
+                    {% if point.location == location %}
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                        {{point.id}}
+                        {{point.location}}
+                        <span class="badge badge-info">{{distances[point]}}</span>
+                    </li>
+                    {% endif %}
+                {% endfor %}
             {% endfor %}
             </ul>
             
@@ -69,33 +73,31 @@
             </button>
         </div>
         <div class="modal-body">
-            <form method = "POST">
+            <form action = "/newpoint" method="POST">
                 <!-- Форма щоб додати пункт -->
                 <div class="form-group">
                     <label for="address">Адреса</label>
-                    <input type="text" class="form-control" id="address" placeholder="">
+                    <input type="text" class="form-control" id="address" name = "address" placeholder="">
                 </div>
                 <div class="form-group">
                     <label for="city">Місто</label>
-                    <input type="text" class="form-control" id="city" placeholder="">
+                    <input type="text" class="form-control" id="city" name = "city" placeholder="">
                 </div>
                 <div class="form-group">
                     <label for="works_from">Години роботи (початок)</label>
-                    <input type="text" class="form-control" id="works_from" placeholder="10:00">
+                    <input type="text" class="form-control" id="works_from" name = "works_from" placeholder="10:00">
                 </div>
                 <div class="form-group">
                     <label for="works_to">Години роботи (кінець)</label>
-                    <input type="text" class="form-control" id="works_to" placeholder="19:00">
+                    <input type="text" class="form-control" id="works_to" name = "works_to" placeholder="19:00">
                 </div>
                 <div class="form-group">
                     <label for="info">Додаткова інформація</label>
-                    <textarea class="form-control" id="info" rows="3"></textarea>
+                    <textarea class="form-control" id="info"name = "info" rows="3"></textarea>
                 </div>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрити</button>
+                <button class="btn btn-primary float-right" type="submit" id = "addPointButton">Додати</button>
             </form>
-        </div>
-        <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрити</button>
-            <button class="btn btn-primary" type="button" id = "addPointButton">Додати</button>
         </div>
         </div>
     </div>

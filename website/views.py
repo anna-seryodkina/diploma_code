@@ -9,7 +9,7 @@ from geopy.distance import geodesic
 
 views = Blueprint('views', __name__)
 
-@views.route('/',  methods = ['GET', 'POST', 'PUT'])
+@views.route('/',  methods = ['GET', 'POST'])
 @login_required
 def home():
     loc = Nominatim(user_agent="website")
@@ -27,9 +27,7 @@ def home():
     mydistances = {}
     mydistances[recycling_points[0]] = 42
     
-    if request.method == 'PUT':
-        pass
-    
+
     if request.method == 'POST':
         city = request.form.get("city")
         mylocation_input = request.form.get("mylocation")
@@ -51,9 +49,11 @@ def home():
             getLoc = loc.geocode(mylocation_input)
             mylocation = [getLoc.latitude, getLoc.longitude]
             # find nearest
-            mydistances = {}
+            mydistances = mydistances.clear()
             for point in recycling_points:
-                mydistances[point] = geodesic(mylocation, point.location).km
+                getLoc = loc.geocode(point.location)
+                point_location = [getLoc.latitude, getLoc.longitude]
+                mydistances[point] = geodesic(mylocation, point_location).km
 
         if material != '':
             # TO DO
@@ -62,3 +62,9 @@ def home():
 
     return render_template("home.html", user = current_user, recycling_points=recycling_points, locations=locations_to_show, distances = mydistances)
 
+
+@views.route('/newpoint', methods = ['POST'])
+def new_point():
+    # add new point
+    flash('Added successfully!', category='success')
+    return redirect(url_for('views.home'))
