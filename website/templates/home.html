@@ -37,26 +37,32 @@
             <div id="map" style="height:500px;"></div>
         </div>
 
-        <div class="col-4" style = "padding-top: 50px;">
-            <ul class="list-group list-group-flush" id="recycling_points">
-            {% for location in locations %}
-                {% for point in recycling_points %}
-                    {% if point.location == location %}
-                    <li class="list-group-item d-flex justify-content-between align-items-start">
-                        {{point.id}}
-                        {{point.location}}
-                        <span class="badge badge-info">{{distances[point]}}</span>
-                    </li>
+        
+
+        <div class="col-4">
+            <div class = "row">
+                <div class = "col">
+                    {% if user.is_admin %}
+                    <button class="btn btn-info" type="button" data-toggle="modal" data-target="#AddPointModal" >Додати пункт</button>
                     {% endif %}
-                {% endfor %}
+                </div>
+                <div class = "col">
+                    <button class="btn btn-outline-dark" type="button" data-toggle="modal" data-target="#AccountModal" >Мій аккаунт</button>
+                </div>
+            </div>
+            <br /><br />
+
+            <ul class="list-group list-group-flush" id="recycling_points">
+            {% for point in locations.keys() %}
+                <li class="list-group-item d-flex justify-content-between align-items-start">
+                    {{point.id}}
+                    {{point.location}}
+                    {% if distances[point] != 'x' %}
+                    <span class="badge badge-info">{{distances[point]}} km</span>
+                    {% endif %}
+                </li>
             {% endfor %}
             </ul>
-            
-
-            <br /><br /><br /><br /> <!--CHANGE THAT-->
-            {% if user.is_admin %}
-            <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#AddPointModal">Додати пункт</button>
-            {% endif %}
         </div>
     </div>
 </div>
@@ -67,7 +73,7 @@
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
         <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLongTitle">Додати новий пункт прийому вторсировини</h5> <!--Change title-->
+            <h5 class="modal-title" id="exampleModalLongTitle">Додати новий пункт прийому вторсировини</h5>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close"> 
             <span aria-hidden="true">&times;</span>
             </button>
@@ -96,7 +102,7 @@
                     <textarea class="form-control" id="info"name = "info" rows="3"></textarea>
                 </div>
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрити</button>
-                <button class="btn btn-primary float-right" type="submit" id = "addPointButton">Додати</button>
+                <button class="btn btn-info float-right" type="submit" id = "addPointButton">Додати</button>
             </form>
         </div>
         </div>
@@ -115,7 +121,7 @@
             </button>
         </div>
         <div class="modal-body">
-            ...
+            ... <!-- TO DO: show point info -->
         </div>
         <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрити</button>
@@ -129,11 +135,74 @@
 </div>
 
 
+<!-- Modal (account)-->
+<div class="modal fade" id="AccountModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLongTitle">Мій аккаунт</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            ... <!-- TO DO: show account info -->
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрити</button>
+        </div>
+        </div>
+    </div>
+</div>
+
+
 
 <div id = "info" style = "padding-top: 50px;">
     <h3>Корисна інформація</h3>
+    <!-- TO DO: show info -->
 </div>
 
+
+<div>
+    {% if user.is_admin %}
+    <button class="btn btn-info" type="button" data-toggle="modal" data-target="#AddInfoModal" >Додати</button>
+    {% endif %}
+</div>
+
+
+<!-- Modal (add info)-->
+<div class="modal fade" id="AddInfoModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLongTitle">Додати інформацію</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"> 
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form action = "/addinfo" method="POST">
+                <!-- Форма щоб додати інформацію -->
+                <div class="form-group">
+                    <label for="address">Заголовок</label>
+                    <input type="text" class="form-control" id="title" name = "title" placeholder="">
+                </div>
+                <div class="form-group">
+                    <label for="info">Інформація</label>
+                    <textarea class="form-control" id="info"name = "info" rows="10"></textarea>
+                </div>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрити</button>
+                <button class="btn btn-info float-right" type="submit" id = "addInfoButton">Додати</button>
+            </form>
+        </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<br /> <br /> <br />
 
 
 <script>
@@ -144,7 +213,7 @@
     }).addTo(map);
 
     // markers
-    {% for location in locations %}
+    {% for location in locations.values() %}
         var marker = L.marker({{location}}).on('click', function(event){
             $('#MarkerModal').modal('show');
         });

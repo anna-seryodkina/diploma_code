@@ -13,20 +13,20 @@ views = Blueprint('views', __name__)
 @login_required
 def home():
     loc = Nominatim(user_agent="website")
-    locations_to_show = []
+    locations_to_show = {}
     recycling_points = RecyclingPoint.query.all()
-    locations = []
+    locations = {}
     for point in recycling_points:
         getLoc = loc.geocode(point.location)
         mylocation = [getLoc.latitude, getLoc.longitude]
-        locations.append(mylocation)
+        locations[point] = mylocation
     
     locations_to_show = locations
     
     # default thing
     mydistances = {}
-    mydistances[recycling_points[0]] = 42
-    
+    for point in recycling_points:
+        mydistances[point] = 'x'
 
     if request.method == 'POST':
         city = request.form.get("city")
@@ -36,12 +36,12 @@ def home():
         if city == 'Усі міста':
             locations_to_show = locations
         else:
-            locs = []
+            locs = {}
             for point in recycling_points:
                 if point.city == city:
                     getLoc = loc.geocode(point.location)
                     mylocation = [getLoc.latitude, getLoc.longitude]
-                    locs.append(mylocation)
+                    locs[point] = mylocation
             locations_to_show = locs
 
 
@@ -49,11 +49,11 @@ def home():
             getLoc = loc.geocode(mylocation_input)
             mylocation = [getLoc.latitude, getLoc.longitude]
             # find nearest
-            mydistances = mydistances.clear()
             for point in recycling_points:
                 getLoc = loc.geocode(point.location)
                 point_location = [getLoc.latitude, getLoc.longitude]
-                mydistances[point] = geodesic(mylocation, point_location).km
+                calculations = geodesic(mylocation, point_location).km
+                mydistances[point] = round(calculations, 1)
 
         if material != '':
             # TO DO
@@ -65,6 +65,13 @@ def home():
 
 @views.route('/newpoint', methods = ['POST'])
 def new_point():
-    # add new point
+    # TO DO: add new point
+    flash('Added successfully!', category='success')
+    return redirect(url_for('views.home'))
+
+
+@views.route('/addinfo', methods = ['POST'])
+def new_info():
+    # TO DO: add new info
     flash('Added successfully!', category='success')
     return redirect(url_for('views.home'))
