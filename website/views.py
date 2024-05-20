@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for
 from flask_login import login_required, current_user
 from . import db
-from .models import RecyclingPoint
+from .models import RecyclingPoint, Info
 from geopy.geocoders import Nominatim
 from geopy import distance
 from geopy.distance import geodesic
@@ -12,6 +12,8 @@ views = Blueprint('views', __name__)
 @views.route('/',  methods = ['GET', 'POST'])
 @login_required
 def home():
+    infos = Info.query.all()
+
     loc = Nominatim(user_agent="website")
     locations_to_show = {}
     recycling_points = RecyclingPoint.query.all()
@@ -60,7 +62,7 @@ def home():
             pass
 
 
-    return render_template("home.html", user = current_user, recycling_points=recycling_points, locations=locations_to_show, distances = mydistances)
+    return render_template("home.html", user = current_user, recycling_points=recycling_points, locations=locations_to_show, distances = mydistances, infos = infos)
 
 
 @views.route('/newpoint', methods = ['POST'])
@@ -72,6 +74,11 @@ def new_point():
 
 @views.route('/addinfo', methods = ['POST'])
 def new_info():
-    # TO DO: add new info
-    flash('Added successfully!', category='success')
+    if request.method == 'POST':
+        title = request.form.get('title')
+        information = request.form.get('info')
+        newinfo = Info(title = title, information = information)
+        db.session.add(newinfo)
+        db.session.commit()
+        flash('Added successfully!', category='success')
     return redirect(url_for('views.home'))
