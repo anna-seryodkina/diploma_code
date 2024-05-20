@@ -36,3 +36,9 @@ class Entry (db.Model):
     recycling_point_id = db.Column(db.Integer, db.ForeignKey('recycling_point.id')) # де здав
     points_earned = db.Column(db.Integer)
     reward = db.Column(db.String(250))
+
+
+class Info(db.Model):
+    id = db.Column(db.Integer, primary_key = True)
+    title = db.Column(db.String(250))
+    information = db.Column(db.String(10000))
