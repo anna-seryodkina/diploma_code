@@ -56,6 +56,7 @@ def home():
                 point_location = [getLoc.latitude, getLoc.longitude]
                 calculations = geodesic(mylocation, point_location).km
                 mydistances[point] = round(calculations, 1)
+            mydistances = dict(sorted(mydistances.items(), key=lambda item: item[1]))
 
         if material != '':
             # TO DO
