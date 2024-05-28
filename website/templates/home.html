@@ -52,6 +52,7 @@
             </div>
             <br /><br />
 
+            <div class = "row">
             <ul class="list-group list-group-flush" id="recycling_points">
             {% for point in distances.keys() %}
                 <li class="list-group-item d-flex justify-content-between align-items-start">
@@ -63,9 +64,53 @@
                 </li>
             {% endfor %}
             </ul>
+            </div>
+            <br/>
+
+
+            <div class = "row">
+                <div class = "col"></div>
+                <div class = "col"></div>
+                <div class = "col" id = "PlusButton">
+                    <button class="btn btn-success btn-lg" type="button" data-toggle="modal" data-target="#AddEntryModal" > + </button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
+
+
+
+<!-- Modal (add new entry)-->
+<div class="modal fade" id="AddEntryModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLongTitle">Новий запис</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form action = "/newentry" method="POST">
+                <!-- Форма щоб додати запис -->
+                <div class="form-group">
+                    <label for="pointaddress">Адреса пункту прийому вторсировини</label>
+                    <input type="text" class="form-control" id="pointaddress" name = "pointaddress" placeholder="">
+                </div>
+                <div class="form-group">
+                    <label for="material">Тип вторсировини</label>
+                    <input type="text" class="form-control" id="material" name = "material" placeholder="">
+                </div>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрити</button>
+                <button class="btn btn-success float-right" type="submit" id = "addEntryButton">Додати</button>
+            </form>
+        </div>
+        </div>
+    </div>
+</div>
+
 
 
 <!-- Modal (add new recycling point)-->

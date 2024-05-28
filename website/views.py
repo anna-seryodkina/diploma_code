@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for
 from flask_login import login_required, current_user
 from . import db
-from .models import RecyclingPoint, Info
+from .models import RecyclingPoint, Info, Entry, Material, User
 from geopy.geocoders import Nominatim
 from geopy import distance
 from geopy.distance import geodesic
@@ -82,4 +82,49 @@ def new_info():
         db.session.add(newinfo)
         db.session.commit()
         flash('Added successfully!', category='success')
+    return redirect(url_for('views.home'))
+
+
+@views.route('/newentry', methods = ['POST'])
+def new_entry():
+    if request.method == 'POST':
+        # adding new entry
+        user = User.query.filter_by(id=current_user.id).first()
+        material = request.form.get('material')
+        get_material = Material.query.filter_by(name = material).first()
+        pointaddress = request.form.get('pointaddress')
+        get_point = RecyclingPoint.query.filter_by(location = pointaddress).first()
+        # points earned 
+        my_points_earned = 0
+        if get_material.id  == 1 or get_material.id  == 2:
+            my_points_earned = 20
+        elif get_material.id  == 3 or get_material.id  == 4:
+            my_points_earned = 40
+        elif get_material.id  == 5 or get_material.id  == 6:
+            my_points_earned = 60
+        else:
+            my_points_earned = 100
+        # reward
+        reward = ""
+        sum_of_points = my_points_earned
+        for entry in user.entries:
+            if entry.material_id == get_material.id:
+                sum_of_points = sum_of_points + entry.points_earned
+        
+        if sum_of_points > 50:
+            reward = "Мідь ( тип: " + get_material.name + " )"
+        elif sum_of_points > 100:
+            reward = "Срібло ( тип: " + get_material.name + " )"
+        elif sum_of_points > 150:
+            reward = "Золото ( тип: " + get_material.name + " )"
+
+        new_entry = Entry(user_id = user.id, material_id = get_material.id, recycling_point_id = get_point.id, points_earned = my_points_earned, reward = reward)
+        db.session.add(new_entry)
+        db.session.commit()
+        flash('Added successfully!', category='success')
+        message_p = 'Points earned: ' + str(my_points_earned)
+        flash(message_p, category='success')
+        if reward != "":
+            message_r = 'Reward: ' + str(reward)
+            flash (message_r, category='success')
     return redirect(url_for('views.home'))
