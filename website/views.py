@@ -5,6 +5,11 @@ from .models import RecyclingPoint, Info, Entry, Material, User
 from geopy.geocoders import Nominatim
 from geopy import distance
 from geopy.distance import geodesic
+import matplotlib.pyplot as plt
+import numpy as np
+import json
+from datetime import datetime
+from datetime import time
 
 
 views = Blueprint('views', __name__)
@@ -12,14 +17,32 @@ views = Blueprint('views', __name__)
 @views.route('/',  methods = ['GET', 'POST'])
 @login_required
 def home():
+    
+
+    materials = Material.query.all()
+    
+    
     infos = Info.query.all()
 
     loc = Nominatim(user_agent="website")
     locations_to_show = {}
     recycling_points = RecyclingPoint.query.all()
+    
+    
+    
+    for point in recycling_points:
+        m_list = []
+        for m in materials:
+            if m.recycling_point_id == point.id:
+                m_list.append(m.name)
+        delimiter = ", "
+        point.materials = delimiter.join(m_list)
+    
+    
+    
     locations = {}
     for point in recycling_points:
-        getLoc = loc.geocode(point.location)
+        getLoc = loc.geocode(point.location, timeout=10)
         mylocation = [getLoc.latitude, getLoc.longitude]
         locations[point] = mylocation
     
@@ -41,35 +64,64 @@ def home():
             locs = {}
             for point in recycling_points:
                 if point.city == city:
-                    getLoc = loc.geocode(point.location)
+                    getLoc = loc.geocode(point.location, timeout=10)
                     mylocation = [getLoc.latitude, getLoc.longitude]
                     locs[point] = mylocation
             locations_to_show = locs
 
 
         if mylocation_input != '':
-            getLoc = loc.geocode(mylocation_input)
+            getLoc = loc.geocode(point.location, timeout=10)
             mylocation = [getLoc.latitude, getLoc.longitude]
             # find nearest
             for point in recycling_points:
-                getLoc = loc.geocode(point.location)
+                getLoc = loc.geocode(point.location, timeout=10)
                 point_location = [getLoc.latitude, getLoc.longitude]
                 calculations = geodesic(mylocation, point_location).km
                 mydistances[point] = round(calculations, 1)
             mydistances = dict(sorted(mydistances.items(), key=lambda item: item[1]))
 
         if material != '':
-            # TO DO
-            pass
+            locs = {}
+            for point in recycling_points:
+                if material in point.materials.split(','):
+                    getLoc = loc.geocode(point.location, timeout=10)
+                    point_location = [getLoc.latitude, getLoc.longitude]
+                    locs[point] = point_location
+            locations_to_show = locs
+
+    for e in current_user.entries:
+        current_user.total_points = current_user.total_points + e.points_earned
+    
+    
+    for m in materials:
+        if m.name not in current_user.stats.keys():
+            all_points = 0
+            for e in current_user.entries:
+                if e.material_id == m.id:
+                    all_points = all_points + e.points_earned
+            current_user.stats[m.name] = all_points
 
 
     return render_template("home.html", user = current_user, recycling_points=recycling_points, locations=locations_to_show, distances = mydistances, infos = infos)
 
 
-@views.route('/newpoint', methods = ['POST'])
+@views.route('/newpoint', methods = ['POST', 'GET'])
 def new_point():
-    # TO DO: add new point
-    flash('Added successfully!', category='success')
+    if request.method == 'POST':
+        address = request.form.get('address')
+        city = request.form.get('city')
+        works_from = request.form.get('works_from')
+        wflist = works_from.split(':')
+        wf = time(int(wflist[0]), int(wflist[1]))
+        works_to = request.form.get('works_to')
+        wtlist = works_to.split(':')
+        wt = time(int(wtlist[0]), int(wtlist[1]))
+        info = request.form.get('info')
+        newpoint = RecyclingPoint(location = address, city = city, works_from=wf, works_to=wt, additional_info=info)
+        db.session.add(newpoint)
+        db.session.commit()
+        flash('Added successfully!', category='success')
     return redirect(url_for('views.home'))
 
 
@@ -127,4 +179,69 @@ def new_entry():
         if reward != "":
             message_r = 'Reward: ' + str(reward)
             flash (message_r, category='success')
+    return redirect(url_for('views.home'))
+
+
+@views.route('/delete-note', methods=['POST'])
+def delete_note():  
+    note = json.loads(request.data) # this function expects a JSON from the INDEX.js file 
+    noteId = note['noteId']
+    info = Info.query.get(noteId)
+    if info:
+        db.session.delete(info)
+        db.session.commit()
+
+    return jsonify({})
+
+
+@views.route('/delete-point', methods=['POST'])
+def delete_point():  
+    point = json.loads(request.data) # this function expects a JSON from the INDEX.js file 
+    pointId = point['pointId']
+    point = RecyclingPoint.query.get(pointId)
+    if point:
+        db.session.delete(point)
+        db.session.commit()
+
+    return jsonify({})
+
+
+@views.route('/editpoint', methods = ['POST', 'GET'])
+def editpoint():
+    if request.method == 'POST':
+        id_data = request.form.get('id')
+        address = request.form.get('address')
+        city = request.form.get('city')
+        works_from = request.form.get('works_from')
+        wflist = works_from.split(':')
+        wf = time(int(wflist[0]), int(wflist[1]))
+        works_to = request.form.get('works_to')
+        wtlist = works_to.split(':')
+        wt = time(int(wtlist[0]), int(wtlist[1]))
+        info = request.form.get('info')
+        
+        mypoint = RecyclingPoint.query.filter_by(id=id_data).first()
+        mypoint.location = address
+        mypoint.city = city
+        mypoint.works_from = wf
+        mypoint.works_to = wt
+        mypoint.additional_info = info
+        db.session.commit()
+        flash('Edited successfully!', category='success')
+    return redirect(url_for('views.home'))
+
+
+
+@views.route('/editinfo', methods = ['POST', 'GET'])
+def editinfo():
+    if request.method == 'POST':
+        id_data = int(request.form.get('id'))
+        title = request.form.get('title')
+        information = request.form.get('info')
+        
+        myinfo = Info.query.filter_by(id = id_data).first()
+        myinfo.title = title
+        myinfo.information = information
+        db.session.commit()
+        flash('Edited successfully!', category='success')
     return redirect(url_for('views.home'))
