@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for
 from flask_login import login_required, current_user
 from . import db
-from .models import RecyclingPoint, Info
+from .models import RecyclingPoint, Info, Entry, Material, User
 from geopy.geocoders import Nominatim
 from geopy import distance
 from geopy.distance import geodesic
@@ -12,14 +12,24 @@ views = Blueprint('views', __name__)
 @views.route('/',  methods = ['GET', 'POST'])
 @login_required
 def home():
+    materials = Material.query.all()
     infos = Info.query.all()
 
     loc = Nominatim(user_agent="website")
     locations_to_show = {}
     recycling_points = RecyclingPoint.query.all()
+    
+    for point in recycling_points:
+        m_list = []
+        for m in materials:
+            if m.recycling_point_id == point.id:
+                m_list.append(m.name)
+        delimiter = ", "
+        point.materials = delimiter.join(m_list)
+    
     locations = {}
     for point in recycling_points:
-        getLoc = loc.geocode(point.location)
+        getLoc = loc.geocode(point.location, timeout=10)
         mylocation = [getLoc.latitude, getLoc.longitude]
         locations[point] = mylocation
     
@@ -41,7 +51,7 @@ def home():
             locs = {}
             for point in recycling_points:
                 if point.city == city:
-                    getLoc = loc.geocode(point.location)
+                    getLoc = loc.geocode(point.location, timeout=10)
                     mylocation = [getLoc.latitude, getLoc.longitude]
                     locs[point] = mylocation
             locations_to_show = locs
@@ -52,14 +62,22 @@ def home():
             mylocation = [getLoc.latitude, getLoc.longitude]
             # find nearest
             for point in recycling_points:
-                getLoc = loc.geocode(point.location)
+                getLoc = loc.geocode(point.location, timeout=10)
                 point_location = [getLoc.latitude, getLoc.longitude]
                 calculations = geodesic(mylocation, point_location).km
                 mydistances[point] = round(calculations, 1)
+            mydistances = dict(sorted(mydistances.items(), key=lambda item: item[1]))
 
-        if material != '':
-            # TO DO
-            pass
+        if material != 'Все':
+            locs = {}
+            for m in materials:
+                if m.name == material:
+                    for point in recycling_points:
+                        if point.id == m.recycling_point_id:
+                            getLoc = loc.geocode(point.location, timeout=10)
+                            point_location = [getLoc.latitude, getLoc.longitude]
+                            locs[point] = point_location
+            locations_to_show = locs
 
 
     return render_template("home.html", user = current_user, recycling_points=recycling_points, locations=locations_to_show, distances = mydistances, infos = infos)

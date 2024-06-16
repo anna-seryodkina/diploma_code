@@ -24,9 +24,9 @@
                     </select>
                     <select class="custom-select" id="material" name = "material">
                         <option selected>Все</option>
-                        <option value="Київ">Пластик</option>
-                        <option value="Львів">Папір</option>
-                        <option value="Дніпро">Скло</option>
+                        <option value="Пластик">Пластик</option>
+                        <option value="Папір">Папір</option>
+                        <option value="Скло">Скло</option>
                         <!-- add more options -->
                     </select>
                     <div class="input-group-append">
@@ -53,7 +53,7 @@
             <br /><br />
 
             <ul class="list-group list-group-flush" id="recycling_points">
-            {% for point in locations.keys() %}
+            {% for point in distances.keys() %}
                 <li class="list-group-item d-flex justify-content-between align-items-start">
                     {{point.id}}
                     {{point.location}}
