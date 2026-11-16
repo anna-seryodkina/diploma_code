@@ -28,6 +28,7 @@ def home():
     locations_to_show = {}
     recycling_points = RecyclingPoint.query.all()
     
+    user = User.query.filter_by(id = current_user.id).first()
     
     
     for point in recycling_points:
@@ -104,16 +105,16 @@ def home():
                 locations_to_show = locs
 
     for e in current_user.entries:
-        current_user.total_points = current_user.total_points + e.points_earned
+        user.total_points = user.total_points + e.points_earned
     
     
     for m in materials:
-        if m.name not in current_user.stats.keys():
+        if m.name not in user.stats.keys():
             all_points = 0
-            for e in current_user.entries:
+            for e in user.entries:
                 if e.material_id == m.id:
                     all_points = all_points + e.points_earned
-            current_user.stats[m.name] = all_points
+            user.stats[m.name] = all_points
 
 
     return render_template("home.html", user = current_user, recycling_points=recycling_points, locations=locations_to_show, distances = mydistances, infos = infos)

@@ -19,6 +19,7 @@
                         <option value="Київ">Київ</option>
                         <option value="Львів">Львів</option>
                         <option value="Дніпро">Дніпро</option>
+                        <option value="Харків">Харків</option>
                         <!-- add more options -->
                     </select>
                     <select class="custom-select" id="material" name = "material">
@@ -54,30 +55,21 @@
             <div class = "row">
             <ul class="list-group list-group-flush" id="recycling_points">
             {% for point in distances.keys() %}
-                {% if point == recycling_points[0] %}
-                    <button type="button" class="list-group-item list-group-item-action" id = "button1" data-toggle="modal" data-target="#Button1Modal">
+                {% if point.id == 4 %}
+                    <button type="button" class="list-group-item list-group-item-action" id = "button1" data-toggle="modal" data-target="#Button2Modal">
                         {{point.location}}
                         {% if distances[point] != 'x' %}
                         <span class="badge badge-info">{{distances[point]}} km</span>
                         {% endif %}
                     </button>
-                {% endif %}
-                {% if point == recycling_points[1] %}
-                    <button type="button" class="list-group-item list-group-item-action" id = "button2" data-toggle="modal" data-target="#Button2Modal">
-                        {{point.location}}
-                        {% if distances[point] != 'x' %}
-                        <span class="badge badge-info">{{distances[point]}} km</span>
-                        {% endif %}
-                    </button>
-                {% endif %}
-                {% if point == recycling_points[2] %}
-                    <button type="button" class="list-group-item list-group-item-action" id = "button3" data-toggle="modal" data-target="#Button3Modal">
-                        {{point.location}}
-                        {% if distances[point] != 'x' %}
-                        <span class="badge badge-info">{{distances[point]}} km</span>
-                        {% endif %}
-                    </button>
-                {% endif %}
+                {% else %}
+                <button type="button" class="list-group-item list-group-item-action" id = "button1" data-toggle="modal" data-target="#MarkerModal">
+                    {{point.location}}
+                    {% if distances[point] != 'x' %}
+                    <span class="badge badge-info">{{distances[point]}} km</span>
+                    {% endif %}
+                </button>
+                {%endif%}
             {% endfor %}
             </ul>
             </div>
@@ -113,7 +105,7 @@
         <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрити</button>
             {% if user.is_admin %}
-                <button class="btn btn-primary" type="button" onClick="deletePoint({{ recycling_points[0].id }})">Видалити</button>
+                <button class="btn btn-primary" type="button" onClick="deletePoint({{ recycling_points[2].id }})">Видалити</button>
                 <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#EditPointModal">Редагувати</button>
             {% endif %}
         </div>
@@ -266,7 +258,7 @@
         <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрити</button>
             {% if user.is_admin %}
-                <button class="btn btn-primary" type="button" onClick="deletePoint({{ recycling_points[0].id }})">Видалити</button>
+                <button class="btn btn-primary" type="button" onClick="deletePoint({{ recycling_points[2].id }})">Видалити</button>
                 <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#EditPointModal">Редагувати</button>
             {% endif %}
         </div>
@@ -364,7 +356,7 @@
     <ul class="list-group list-group-flush" id="infolist">
     {% for i in infos %}
     <li class="list-group-item justify-content-between align-items-start">
-        <h5>[ {{i.id}} ] {{i.title}}</h5>
+        <h5>{{i.title}}</h5>
         <p>{{i.information}}</p>
         {% if user.is_admin %}
         <button type="button" class="close" onClick="deleteNote({{ i.id }})">
