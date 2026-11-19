@@ -39,3 +39,4 @@ msbuild.wrn
 
 instance
 tests/__pycache__/
+tests/.pytest_cache/
