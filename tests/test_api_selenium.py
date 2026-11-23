@@ -15,9 +15,9 @@ def driver():
 
 def test_login_with_valid_data(driver):
     login_page = LoginPage(driver)
-    login_page.login_with("testing@gmail.com", "SuperSecretPassword")
+    login_page.login_with("testing@gmail.com", "0987654321")
     home_page = HomePage(driver)
     
-    assert home_page.get_title() == "Welcome to the Recycling Points App" # Fix this
+    assert home_page.get_button_text() == "Мій аккаунт"
 
 

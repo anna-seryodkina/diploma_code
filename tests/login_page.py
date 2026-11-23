@@ -5,7 +5,7 @@ from selenium.webdriver.common.by import By
 class LoginPage:
     def __init__(self, driver):
         self.driver = driver
-        self.username = (By.ID, "username")
+        self.username = (By.ID, "email")
         self.password = (By.ID, "password")
         self.login_button = (By.ID, "login-button")
 
