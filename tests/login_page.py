@@ -8,6 +8,7 @@ class LoginPage:
         self.username = (By.ID, "email")
         self.password = (By.ID, "password")
         self.login_button = (By.ID, "login-button")
+        self.error_message = (By.CSS_SELECTOR, "[role='alert']")
 
     
     def open(self):
@@ -31,6 +32,11 @@ class LoginPage:
     
     def __click_login(self):
         self.driver.find_element(*self.login_button).click()
+    
+    
+    def get_error_message(self):
+        error_element = self.driver.find_element(*self.error_message).get_attribute("innerText")[:-2]
+        return error_element
 
 
     

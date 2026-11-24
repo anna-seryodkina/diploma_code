@@ -19,5 +19,15 @@ def test_login_with_valid_data(driver):
     home_page = HomePage(driver)
     
     assert home_page.get_button_text() == "Мій аккаунт"
+    assert home_page.get_account_firstname() == "Tester"
+
+
+
+def test_login_with_invalid_email(driver):
+    login_page = LoginPage(driver)
+    login_page.login_with("invalid_email@gmail.com", "0987654321")
+    
+    error_message = login_page.get_error_message()
+    assert error_message == "Email does not exist."
 
 
