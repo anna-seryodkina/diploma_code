@@ -12,3 +12,13 @@ class HomePage:
         return self.driver.find_element(*self.myaccount_button).text
     
 
+    def __click_my_account(self):
+        self.driver.find_element(*self.myaccount_button).click()
+
+
+    def get_account_firstname(self):
+        self.__click_my_account()
+        firstname_element = self.driver.find_element(By.ID, "myaccountFirstname")
+        return firstname_element.get_attribute("innerText").strip()
+
+    
