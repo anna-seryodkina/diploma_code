@@ -31,3 +31,10 @@ def test_login_with_invalid_email(driver):
     assert error_message == "Email does not exist."
 
 
+def test_login_with_invalid_password(driver):
+    login_page = LoginPage(driver)
+    login_page.login_with("testing@gmail.com", "password")
+    
+    error_message = login_page.get_error_message()
+    assert error_message == "Incorrect password, try again."
+
